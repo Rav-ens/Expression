@@ -1,5 +1,6 @@
 input.in
 output.out
-test.cpp
 test2.cpp
-main.cpp
+main.exe
+Expression.exe
+test.exe
