@@ -298,6 +298,7 @@ Expression<T> Expression<T>::differ(const std::string& v){
 				return  exp(r) * r.differ(v); 
 			}
 		}
+    return Expression(0.0);
 }
 
 template<typename T>
