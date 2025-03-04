@@ -60,7 +60,7 @@ void test_expression_differentiation() {
     }
 }
 
-int testing() {
+int main() {
     test_expression_creation();
     test_expression_addition();
     test_expression_multiplication();
