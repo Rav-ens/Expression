@@ -1,4 +1,4 @@
-#include "expression.hpp"
+#include "Expression.hpp"
 #include <locale>
 #include <stack>
 #include <vector>
@@ -337,6 +337,14 @@ std::vector<Token<T>> tokenize(std::string& s){
                 v.push_back(Token<T>(buffer));
                 buffer = "";
             }
+        }else if(i == '('){
+            if(buffer != "") v.push_back(Token<T>(buffer));
+            v.push_back(Token<T>("("));
+            buffer = "";
+        }else if(i == ')'){
+            if(buffer != "") v.push_back(Token<T>(buffer));
+            v.push_back(Token<T>(")"));
+            buffer = "";
         }
         else{
             buffer+=i;
@@ -351,7 +359,6 @@ std::vector<Node<T>*> to_opz(std::string& s){
     std::stack<Token<T>> stack{};
     std::vector<Node<T> *> ans;
     for(auto t: tokens){
-        //std::cout<<t.scc<<std::endl;
         if(t.is_var){
             Node<T>* n = new Node<T>;
             n->type = 2;
@@ -363,7 +370,6 @@ std::vector<Node<T>*> to_opz(std::string& s){
             }
             else if(t.scc){
                 while(stack.top().sco != 1){
-                    //std::cout<<"11"<<std::endl;
                     Node<T>* n = new Node<T>;
                     n->type = int(stack.top().is_func);
                     n->v_op = stack.top().oper;
