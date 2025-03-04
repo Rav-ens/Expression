@@ -1,71 +1,58 @@
 #include "Expression.cpp"
-#include <filesystem>
 #include <iostream>
-#include <iterator>
-#include <regex>
-#include <set>
+#include <map>
+#include <cstdlib>
 
+using namespace std;
 
-void test_expression_creation(){
-    Expression<double> expr("x");
-    if (expr.to_str() == "(x)") {
-        std::cout << "test_expression_creation: OK" << std::endl;
-    } else {
-        std::cout << "test_expression_creation: FAIL" << std::endl;
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " [--eval | --diff] ..." << endl;
+        return 1;
     }
-}
 
-void test_expression_addition() {
-    Expression<double> expr1("x");
-    Expression<double> expr2("y");
-    Expression<double> result = expr1 + expr2;
-    if (result.to_str() == "((x) + (y))") {
-        std::cout << "test_expression_addition: OK" << std::endl;
+    string mode = argv[1];
+
+    if (mode == "--eval") {
+        if (argc < 3) {
+            cerr << "Missing expression for --eval" << endl;
+            return 1;
+        }
+        string expr_str = argv[2];
+        auto expr = parse<double>(expr_str);
+
+        map<string, double> vars;
+        for (int i = 3; i < argc; ++i) {
+            string arg = argv[i];
+            size_t eq_pos = arg.find('=');
+            if (eq_pos == string::npos) {
+                cerr << "Invalid variable assignment: " << arg << endl;
+                return 1;
+            }
+            string var = arg.substr(0, eq_pos);
+            double val = stod(arg.substr(eq_pos + 1));
+            vars[var] = val;
+        }
+
+        cout << expr.eval(vars) << endl;
+
+    } else if (mode == "--diff") {
+        if (argc < 5 || string(argv[3]) != "--by") {
+            cerr << "Usage: " << argv[0] << " --diff \"expression\" --by var" << endl;
+            return 1;
+        }
+        string expr_str = argv[2];
+        string by_var = argv[4];
+
+        auto expr = parse<double>(expr_str);
+        auto derivative = expr.differ(by_var);
+
+        cout << derivative.to_str() << endl;
+
     } else {
-        std::cout << "test_expression_addition: FAIL" << std::endl;
+        cerr << "Unknown mode: " << mode << endl;
+        return 1;
     }
-}
-
-void test_expression_multiplication() {
-    Expression<double> expr1("x");
-    Expression<double> expr2("y");
-    Expression<double> result = expr1 * expr2;
-    if (result.to_str() == "((x) * (y))") {
-        std::cout << "test_expression_multiplication: OK" << std::endl;
-    } else {
-        std::cout << "test_expression_multiplication: FAIL" << std::endl;
-    }
-}
-
-void test_expression_evaluation() {
-    Expression<double> expr("x");
-    std::map<std::string, double> vars = {{"x", 5.0}};
-    double result = expr.eval(vars);
-    if (result == 5.0) {
-        std::cout << "test_expression_evaluation: OK" << std::endl;
-    } else {
-        std::cout << "test_expression_evaluation: FAIL" << std::endl;
-    }
-}
-
-void test_expression_differentiation() {
-    Expression<double> x = parse<double>("x ^ ( 0.5 )");
-    Expression<double> result = x.differ("x");
-    std::map<std::string, double> map = {{"x",0.25}};
-    //std::cout<<result.eval(map)<<std::endl;    
-    if (result.eval(map) == 1) {
-        std::cout << "test_expression_differentiation: OK" << std::endl;
-    } else {
-        std::cout << "test_expression_differentiation: FAIL" << std::endl;
-    }
-}
-
-int main() {
-    test_expression_creation();
-    test_expression_addition();
-    test_expression_multiplication();
-    test_expression_evaluation();
-    test_expression_differentiation();
 
     return 0;
 }
