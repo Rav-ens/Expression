@@ -7,6 +7,7 @@
 #include <sstream>
 #include <map>
 #include <complex>
+#include <vector>
 
 template<typename T>
 class Variable {
@@ -28,6 +29,34 @@ public:
     Node* right;
     char v_op;
     Variable<T> v_var;
+};
+
+template<typename T>
+class Token{
+public:
+    const std::map<std::string, int> map = {
+        {"(", 0},
+        {"+", 1},
+        {"-",1},
+        {"*",2},
+        {"/",2},
+        {"^",3},
+        {"sin",4},
+        {"cos",4},
+        {"ln",4},
+        {"exp",4},
+    };
+    bool is_oper;
+    bool is_func;
+    bool is_var;
+    bool sco;
+    bool scc;
+    char oper;
+    char prior;
+    Variable<T> v;
+    Token(std::string s);
+
+
 };
 
 template<typename T>
@@ -58,12 +87,25 @@ public:
     std::string to_str();
     void replace(const std::string& k, T v);
     T eval(std::map<std::string, T>& mp);
-
-    static void deleteTree(Node<T>* node);
     static Node<T>* copyNode(const Node<T>* src);
+    Expression differ(const std::string& v);
+    
+    template<typename HHH>
+    friend std::vector<Token<T>> tokenize(std::string& s);
+    template<typename HHH>
+    friend std::vector<Node<T>*> to_opz(std::string& s);
+    template<typename HHH>
+    friend Expression<T> parse(std::string s);
+
+
+private:
+    static void deleteTree(Node<T>* node);
     static std::string to_string(Node<T>* h);
     void repl(Node<T>* h, const std::string& k, T v);
     T eval_rec(Node<T>* h, std::map<std::string, T>& mp);
+    bool is_var(Node<T>* h,const std::string& v);
+
+
 };
 
 #endif // EXPRESSION_HPP
