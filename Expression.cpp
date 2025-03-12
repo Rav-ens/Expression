@@ -279,9 +279,9 @@ Expression<T> Expression<T>::differ(const std::string& v){
 				return  (l.differ(v)*r - r.differ(v) * l) / r * r;
 			}
 			if(head->v_op == '^'){
-				return r*(l^(r-1)) + (l^r)*(r.differ(v))*ln(l);
+                return r*(l^(r-Expression(1)))*l.differ(v) + (l^r)*(r.differ(v))*ln(l);
 			}
-		}
+	   }
 		else{
 			Expression r;
 			r.head = copyNode(head->right);
@@ -298,6 +298,8 @@ Expression<T> Expression<T>::differ(const std::string& v){
 				return  exp(r) * r.differ(v); 
 			}
 		}
+        std::cout<<"WTF???"<<std::endl;
+        return Expression(0.0);
 }
 
 template<typename T>
@@ -327,6 +329,7 @@ Token<T>::Token(std::string s):is_oper(0),is_func(0),is_var(1),sco(0),scc(0){
 
 template<typename T>
 std::vector<Token<T>> tokenize(std::string& s){
+    std::vector<std::string> oper = {"+","-","*","/","sin","cos","ln","exp","^"};
     std::string buffer = "";
     s = " ( " + s;
     s += " ) ";
@@ -337,18 +340,24 @@ std::vector<Token<T>> tokenize(std::string& s){
                 v.push_back(Token<T>(buffer));
                 buffer = "";
             }
-        }else if(i == '('){
+        }else if(i == '(' || i ==')' || i == '+' || i =='-'|| i == '*' || i == '/' || i == '^' ){
             if(buffer != "") v.push_back(Token<T>(buffer));
-            v.push_back(Token<T>("("));
             buffer = "";
-        }else if(i == ')'){
-            if(buffer != "") v.push_back(Token<T>(buffer));
-            v.push_back(Token<T>(")"));
+            buffer += i;
+            v.push_back(Token<T>(buffer));
             buffer = "";
-        }
-        else{
+
+        }else{
             buffer+=i;
         }
+
+        for(auto s : oper){
+            if(buffer == s){
+                v.push_back(Token<T>(buffer));
+                buffer = "";
+            }
+        }
+
     }
     return v;
 }
