@@ -1,23 +1,14 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -O2
+CXXFLAGS = -std=c++11 -Wall -I.
 
-SRCS = main.cpp expression.cpp
-OBJS = $(SRCS:.cpp=.o)
-TARGET = differentiator
+all: differentiator
 
-all: $(TARGET)
+differentiator: main.cpp Expression.hpp
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+test: test.cpp Expression.hpp
+	$(CXX) $(CXXFLAGS) -o test_program test.cpp
+	./test_program
 
 clean:
-	rm -f $(OBJS) $(TARGET)
-
-test: $(TARGET)
-	./$(TARGET) --eval "x * y" x=10 y=12
-	./$(TARGET) --diff "x * sin(x)" --by x
-
-.PHONY: all clean test
+	rm -f differentiator test_program
